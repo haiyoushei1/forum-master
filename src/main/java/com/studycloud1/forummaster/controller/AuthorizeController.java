@@ -2,6 +2,8 @@ package com.studycloud1.forummaster.controller;
 
 import com.studycloud1.forummaster.dto.AccessTokenDTO;
 import com.studycloud1.forummaster.dto.GithubUser;
+import com.studycloud1.forummaster.mapper.UserMapper;
+import com.studycloud1.forummaster.model.User;
 import com.studycloud1.forummaster.provider.GithubProvider;
 import org.omg.PortableInterceptor.SYSTEM_EXCEPTION;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,9 +14,11 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.UUID;
 
 @Controller
 public class AuthorizeController {
@@ -31,10 +35,14 @@ public class AuthorizeController {
     @Autowired
     private GithubProvider githubProvider;
 
+    @Autowired
+    private UserMapper userMapper;
+
     @GetMapping("/callback")
     public String callBack(@RequestParam(name="code") String code,
                            @RequestParam(name="state") String state,
-                            HttpServletRequest httpServletRequest){
+                            HttpServletRequest httpServletRequest,
+                            HttpServletResponse httpServletResponse){
         AccessTokenDTO accessTokenDTO = new AccessTokenDTO();
 
         accessTokenDTO.setClient_id(client_id);
@@ -47,7 +55,19 @@ public class AuthorizeController {
         GithubUser githubUser = githubProvider.getUser(accesstoken);
 
         if(githubUser != null & githubUser.getId() != null){
-            httpServletRequest.getSession().setAttribute("user", githubUser);
+            User user = new User();
+            String token = UUID.randomUUID().toString();
+
+            user.setId(githubUser.getId());
+            user.setToken(token);
+            user.setName(githubUser.getName());
+            user.setAccountId(String.valueOf(githubUser.getId()));
+            userMapper.insertUser(user);
+
+            Cookie cookie = new Cookie("token", token);
+            cookie.setMaxAge(60);
+            httpServletResponse.addCookie(cookie);
+
             return "redirect:/";
         }
         return "index";
