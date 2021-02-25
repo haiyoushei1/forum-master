@@ -5,6 +5,7 @@ import com.studycloud1.forummaster.dto.GithubUser;
 import com.studycloud1.forummaster.mapper.UserMapper;
 import com.studycloud1.forummaster.model.User;
 import com.studycloud1.forummaster.provider.GithubProvider;
+import com.studycloud1.forummaster.service.UserService;
 import org.omg.PortableInterceptor.SYSTEM_EXCEPTION;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -36,7 +37,7 @@ public class AuthorizeController {
     private GithubProvider githubProvider;
 
     @Autowired
-    private UserMapper userMapper;
+    UserService userService;
 
     @GetMapping("/callback")
     public String callBack(@RequestParam(name="code") String code,
@@ -55,6 +56,7 @@ public class AuthorizeController {
         GithubUser githubUser = githubProvider.getUser(accesstoken);
 
         if(githubUser != null & githubUser.getId() != null){
+
             User user = new User();
             String token = UUID.randomUUID().toString();
 
@@ -62,8 +64,8 @@ public class AuthorizeController {
             user.setToken(token);
             user.setName(githubUser.getName());
             user.setAccountId(String.valueOf(githubUser.getId()));
-            userMapper.insertUser(user);
 
+            userService.createOrUpdate(user);
             Cookie cookie = new Cookie("token", token);
             cookie.setMaxAge(60);
             httpServletResponse.addCookie(cookie);

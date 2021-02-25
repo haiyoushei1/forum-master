@@ -22,7 +22,7 @@ public class IndexController {
         for(Cookie cookie : cookies){
             if(cookie.getName().equals("token")){
                 String token = cookie.getValue();
-                User user = userMapper.selectUser(token);
+                User user = userMapper.selectUserBytoken(token);
                 if(user != null){
                     httpServletRequest.getSession().setAttribute("user", user);
                 }
