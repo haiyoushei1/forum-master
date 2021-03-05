@@ -1,5 +1,6 @@
 package com.studycloud1.forummaster.controller;
 
+import com.studycloud1.forummaster.dto.PaginationDTO;
 import com.studycloud1.forummaster.dto.QuestionDTO;
 import com.studycloud1.forummaster.mapper.UserMapper;
 import com.studycloud1.forummaster.model.User;
@@ -40,8 +41,8 @@ public class IndexController {
             }
         }
 
-        List<QuestionDTO> questionDTOS = questionService.list(page, size);
-        model.addAttribute("questions", questionDTOS);
+        PaginationDTO paginationDTO = questionService.list(page, size);
+        model.addAttribute("pagination", paginationDTO);
 
         return "index";
     }

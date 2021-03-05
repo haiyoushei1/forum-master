@@ -1,6 +1,7 @@
 package com.studycloud1.forummaster.service;
 
 
+import com.studycloud1.forummaster.dto.PaginationDTO;
 import com.studycloud1.forummaster.dto.QuestionDTO;
 import com.studycloud1.forummaster.mapper.QuestionMapper;
 import com.studycloud1.forummaster.mapper.UserMapper;
@@ -35,10 +36,24 @@ public class QuestionService {
 
     }
 
-    public List<QuestionDTO> list(Integer page, Integer size){
-        page = size * (page - 1);
-        List<Question> questions = questionMapper.selectQuestion(page, size);
+    public PaginationDTO list(Integer page, Integer size){
         List<QuestionDTO> questionDTOS = new ArrayList<>();
+        PaginationDTO paginationDTO = new PaginationDTO();
+        Integer totalCount = questionMapper.selectAllQuestionCount();
+        Integer totalPage;
+
+        if((totalCount % size) != 0){
+            totalPage = totalCount / size + 1;
+        }else{
+            totalPage = totalCount / size;
+        }
+        if(page < 1)
+            page = 1;
+        if(page > totalPage)
+            page = totalPage;
+
+        Integer limitCount = size * (page - 1);
+        List<Question> questions = questionMapper.selectQuestion(limitCount, size);
 
         for(Question question : questions){
             User user = userMapper.selectUserById(question.getCreator());
@@ -53,6 +68,41 @@ public class QuestionService {
             questionDTO.setUser(user);
             questionDTOS.add(questionDTO);
         }
-        return questionDTOS;
+
+        paginationDTO.setPaginationDTO(questionDTOS, page, totalPage);
+
+        return paginationDTO;
     }
+
+    public PaginationDTO list(Integer page, Integer size, User user){
+        List<QuestionDTO> questionDTOS = new ArrayList<>();
+        PaginationDTO paginationDTO = new PaginationDTO();
+        Integer totalCount = questionMapper.selectUserQuestionCount(user.getId());
+        Integer totalPage;
+
+        if((totalCount % size) != 0){
+            totalPage = totalCount / size + 1;
+        }else{
+            totalPage = totalCount / size;
+        }
+        if(page < 1)
+            page = 1;
+        if(page > totalPage)
+            page = totalPage;
+
+        Integer limitCount = size * (page - 1);
+        List<Question> questions = questionMapper.selectUserQuestion(limitCount, size, (Integer)user.getId());
+
+        for(Question question : questions){
+            QuestionDTO questionDTO = new QuestionDTO();
+            BeanUtils.copyProperties(question, questionDTO);
+            questionDTO.setUser(user);
+            questionDTOS.add(questionDTO);
+        }
+
+        paginationDTO.setQuestionDTOS(questionDTOS);
+        return paginationDTO;
+    }
+
+
 }

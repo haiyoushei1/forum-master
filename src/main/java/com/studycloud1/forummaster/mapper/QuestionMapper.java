@@ -3,6 +3,7 @@ package com.studycloud1.forummaster.mapper;
 import com.studycloud1.forummaster.model.Question;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 
 import java.util.List;
@@ -18,6 +19,15 @@ public interface QuestionMapper {
     void insertQuestion(Question question);
 
 
-    @Select("select * from question limit #{page},#{size}")
-    List<Question> selectQuestion(Integer page, Integer size);
+    @Select("select * from question limit #{limitCount},#{size}")
+    List<Question> selectQuestion(Integer limitCount, Integer size);
+
+    @Select("select count(1) from question")
+    Integer selectAllQuestionCount();
+
+    @Select("select count(1) from question where creator = ${userId}")
+    Integer selectUserQuestionCount(@Param("userId") Integer userId);
+
+    @Select("select * from question where creator = ${id} limit #{limitCount},#{size}")
+    List<Question> selectUserQuestion(Integer limitCount, Integer size, Integer id);
 }
