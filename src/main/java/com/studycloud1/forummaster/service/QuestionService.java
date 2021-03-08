@@ -100,7 +100,7 @@ public class QuestionService {
             questionDTOS.add(questionDTO);
         }
 
-        paginationDTO.setQuestionDTOS(questionDTOS);
+        paginationDTO.setPaginationDTO(questionDTOS, page, totalPage);
         return paginationDTO;
     }
 

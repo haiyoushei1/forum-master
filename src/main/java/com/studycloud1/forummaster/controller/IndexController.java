@@ -26,21 +26,7 @@ public class IndexController {
     @Autowired
     QuestionService questionService;
     @GetMapping("/")
-    public String index(HttpServletRequest httpServletRequest, Model model,
-                        @RequestParam(name = "size", defaultValue = "3") Integer size,
-                        @RequestParam(name = "page", defaultValue = "1") Integer page){
-        Cookie cookies[] = httpServletRequest.getCookies();
-        for(Cookie cookie : cookies){
-            if(cookie.getName().equals("token")){
-                String token = cookie.getValue();
-                User user = userMapper.selectUserBytoken(token);
-                if(user != null){
-                    httpServletRequest.getSession().setAttribute("user", user);
-                }
-                break;
-            }
-        }
-
+    public String index(Model model, @RequestParam(name = "size", defaultValue = "3") Integer size, @RequestParam(name = "page", defaultValue = "1") Integer page){
         PaginationDTO paginationDTO = questionService.list(page, size);
         model.addAttribute("pagination", paginationDTO);
 

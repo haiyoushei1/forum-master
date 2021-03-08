@@ -1,6 +1,7 @@
 package com.studycloud1.forummaster.controller;
 
 
+import com.studycloud1.forummaster.dto.PaginationDTO;
 import com.studycloud1.forummaster.model.Question;
 import com.studycloud1.forummaster.model.User;
 import com.studycloud1.forummaster.service.QuestionService;
@@ -28,7 +29,8 @@ public class ProfileController {
         if("questions".equals(action)){
             model.addAttribute("section", "questions");
             model.addAttribute("sectionName", "我的提问");
-            questionService.list(page, size, user);
+            PaginationDTO paginationDTO= questionService.list(page, size, user);
+            model.addAttribute("pagination", paginationDTO);
         }else if("repies".equals(action)){
             model.addAttribute("section", "repies");
             model.addAttribute("sectionName", "最新回复");
