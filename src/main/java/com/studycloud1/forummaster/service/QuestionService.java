@@ -9,6 +9,7 @@ import com.studycloud1.forummaster.model.Question;
 import com.studycloud1.forummaster.model.User;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -25,15 +26,17 @@ public class QuestionService {
 
     public void createOrUpdate(Question question) {
 
-        if(questionMapper.selectQuestionById(question) == null){
+        if(questionMapper.selectQuestionById(question.getId()) == null){
             question.setGmtCreate(System.currentTimeMillis());
             question.setGmtModified(question.getGmtCreate());
             question.setViewCount(0);
             question.setLikeCount(0);
             question.setCommentCount(0);
             questionMapper.insertQuestion(question);
+        }else {
+            question.setGmtModified(System.currentTimeMillis());
+            questionMapper.updateQuestion(question);
         }
-
     }
 
     public PaginationDTO list(Integer page, Integer size){
@@ -105,4 +108,22 @@ public class QuestionService {
     }
 
 
+    public QuestionDTO getQuestionById(Integer id) {
+
+        QuestionDTO questionDTO = new QuestionDTO();
+        Question question = questionMapper.selectQuestionById(id);
+        User user = userMapper.selectUserById(question.getCreator());
+
+        if(user == null){
+            user = new User();
+            user.setName("用户已注销");
+            user.setId(000);
+        }
+
+        BeanUtils.copyProperties(question, questionDTO);
+        questionDTO.setUser(user);
+
+        return questionDTO;
+
+    }
 }

@@ -1,5 +1,6 @@
 package com.studycloud1.forummaster.controller;
 
+import com.studycloud1.forummaster.dto.QuestionDTO;
 import com.studycloud1.forummaster.model.Question;
 import com.studycloud1.forummaster.model.User;
 import com.studycloud1.forummaster.service.QuestionService;
@@ -8,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -64,5 +66,18 @@ public class PublishController {
         questionService.createOrUpdate(question);
 
         return "redirect:/";
+    }
+
+    @GetMapping("/publish/{id}")
+    public String edit(@PathVariable(name = "id") Integer id,
+                       Model model){
+        QuestionDTO questionDTO = questionService.getQuestionById(id);
+
+        model.addAttribute("title", questionDTO.getTitle());
+        model.addAttribute("description", questionDTO.getDescription());
+        model.addAttribute("tag", questionDTO.getTag());
+        model.addAttribute("id", questionDTO.getId());
+
+        return "publish";
     }
 }
