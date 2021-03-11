@@ -5,7 +5,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-//@MapperScan("com.studycloud1.forummaster.mapper")
+@MapperScan("com.studycloud1.forummaster.mapper")
 public class ForumMasterApplication {
 
     public static void main(String[] args) {

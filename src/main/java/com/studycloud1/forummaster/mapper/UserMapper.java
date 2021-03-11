@@ -1,20 +1,33 @@
 package com.studycloud1.forummaster.mapper;
 
 import com.studycloud1.forummaster.model.User;
-import org.apache.ibatis.annotations.*;
+import com.studycloud1.forummaster.model.UserExample;
+import java.util.List;
+import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.session.RowBounds;
 
-@Mapper
 public interface UserMapper {
+    long countByExample(UserExample example);
 
-    @Insert("insert into user (id, account_id, name, token, gmt_create, gmt_modified, avatar_url) values (#{id}, #{accountId}, #{name}, #{token}, #{gmtCreate}, #{gmtModified}, #{avatarUrl})")
-    void insertUser(User user);
+    int deleteByExample(UserExample example);
 
-    @Select("select * from user where token = #{token}")
-    User selectUserBytoken(@Param("token") String token);
+    int deleteByPrimaryKey(Integer id);
 
-    @Update("update user set token = #{token}, name = #{name} where id = #{id}")
-    void updateUser(User user);
+    int insert(User record);
 
-    @Select("select * from user where id = #{id}")
-    User selectUserById(int id);
+    int insertSelective(User record);
+
+    List<User> selectByExampleWithRowbounds(UserExample example, RowBounds rowBounds);
+
+    List<User> selectByExample(UserExample example);
+
+    User selectByPrimaryKey(Integer id);
+
+    int updateByExampleSelective(@Param("record") User record, @Param("example") UserExample example);
+
+    int updateByExample(@Param("record") User record, @Param("example") UserExample example);
+
+    int updateByPrimaryKeySelective(User record);
+
+    int updateByPrimaryKey(User record);
 }

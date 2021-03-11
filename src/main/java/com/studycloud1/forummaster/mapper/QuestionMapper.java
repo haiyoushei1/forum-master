@@ -1,33 +1,41 @@
 package com.studycloud1.forummaster.mapper;
 
 import com.studycloud1.forummaster.model.Question;
-import org.apache.ibatis.annotations.*;
-
+import com.studycloud1.forummaster.model.QuestionExample;
 import java.util.List;
+import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.session.RowBounds;
 
-@Mapper
 public interface QuestionMapper {
+    long countByExample(QuestionExample example);
 
-    @Select("select * from question where id = #{id}")
-    Question selectQuestionById(Integer id);
+    int deleteByExample(QuestionExample example);
 
-    @Insert("insert into question (id, title, description, gmt_create, gmt_modified, creator, view_count, comment_count, like_count, tag) " +
-            "values (#{id}, #{title}, #{description}, #{gmtCreate}, #{gmtModified}, #{creator}, #{viewCount}, #{commentCount}, #{likeCount}, #{tag})")
-    void insertQuestion(Question question);
+    int deleteByPrimaryKey(Integer id);
 
+    int insert(Question record);
 
-    @Select("select * from question limit #{limitCount},#{size}")
-    List<Question> selectQuestion(Integer limitCount, Integer size);
+    int insertSelective(Question record);
 
-    @Select("select count(1) from question")
-    Integer selectAllQuestionCount();
+    List<Question> selectByExampleWithBLOBsWithRowbounds(QuestionExample example, RowBounds rowBounds);
 
-    @Select("select count(1) from question where creator = #{userId}")
-    Integer selectUserQuestionCount(Integer userId);
+    List<Question> selectByExampleWithBLOBs(QuestionExample example);
 
-    @Select("select * from question where creator = #{id} limit #{limitCount},#{size}")
-    List<Question> selectUserQuestion(Integer limitCount, Integer size, Integer id);
+    List<Question> selectByExampleWithRowbounds(QuestionExample example, RowBounds rowBounds);
 
-    @Update("update question set title = #{title}, description = #{description}, gmt_modified = #{gmtModified}, tag = #{tag} where id = #{id}")
-    void updateQuestion(Question question);
+    List<Question> selectByExample(QuestionExample example);
+
+    Question selectByPrimaryKey(Integer id);
+
+    int updateByExampleSelective(@Param("record") Question record, @Param("example") QuestionExample example);
+
+    int updateByExampleWithBLOBs(@Param("record") Question record, @Param("example") QuestionExample example);
+
+    int updateByExample(@Param("record") Question record, @Param("example") QuestionExample example);
+
+    int updateByPrimaryKeySelective(Question record);
+
+    int updateByPrimaryKeyWithBLOBs(Question record);
+
+    int updateByPrimaryKey(Question record);
 }

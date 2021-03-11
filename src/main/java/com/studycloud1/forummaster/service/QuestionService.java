@@ -6,7 +6,9 @@ import com.studycloud1.forummaster.dto.QuestionDTO;
 import com.studycloud1.forummaster.mapper.QuestionMapper;
 import com.studycloud1.forummaster.mapper.UserMapper;
 import com.studycloud1.forummaster.model.Question;
+import com.studycloud1.forummaster.model.QuestionExample;
 import com.studycloud1.forummaster.model.User;
+import org.apache.ibatis.session.RowBounds;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -26,23 +28,30 @@ public class QuestionService {
 
     public void createOrUpdate(Question question) {
 
-        if(questionMapper.selectQuestionById(question.getId()) == null){
+        if(questionMapper.selectByPrimaryKey(question.getId()) == null){
             question.setGmtCreate(System.currentTimeMillis());
             question.setGmtModified(question.getGmtCreate());
             question.setViewCount(0);
             question.setLikeCount(0);
             question.setCommentCount(0);
-            questionMapper.insertQuestion(question);
+            questionMapper.insert(question);
         }else {
-            question.setGmtModified(System.currentTimeMillis());
-            questionMapper.updateQuestion(question);
+            QuestionExample questionExample = new QuestionExample();
+            questionExample.createCriteria().andIdEqualTo(question.getId());
+            Question updateQuestion = new Question();
+            updateQuestion.setGmtModified(System.currentTimeMillis());
+            updateQuestion.setDescription(question.getDescription());
+            updateQuestion.setTag(question.getTag());
+            updateQuestion.setTitle(question.getTitle());
+
+            questionMapper.updateByExampleSelective(updateQuestion, questionExample);
         }
     }
 
     public PaginationDTO list(Integer page, Integer size){
         List<QuestionDTO> questionDTOS = new ArrayList<>();
         PaginationDTO paginationDTO = new PaginationDTO();
-        Integer totalCount = questionMapper.selectAllQuestionCount();
+        Integer totalCount = (int) questionMapper.countByExample(new QuestionExample());
         Integer totalPage;
 
         if((totalCount % size) != 0){
@@ -56,10 +65,11 @@ public class QuestionService {
             page = totalPage;
 
         Integer limitCount = size * (page - 1);
-        List<Question> questions = questionMapper.selectQuestion(limitCount, size);
+
+        List<Question> questions = questionMapper.selectByExampleWithRowbounds(new QuestionExample(), new RowBounds(limitCount, size));
 
         for(Question question : questions){
-            User user = userMapper.selectUserById(question.getCreator());
+            User user = userMapper.selectByPrimaryKey(question.getCreator());
             QuestionDTO questionDTO = new QuestionDTO();
             if(user == null){
                 user = new User();
@@ -80,7 +90,9 @@ public class QuestionService {
     public PaginationDTO list(Integer page, Integer size, User user){
         List<QuestionDTO> questionDTOS = new ArrayList<>();
         PaginationDTO paginationDTO = new PaginationDTO();
-        Integer totalCount = questionMapper.selectUserQuestionCount(user.getId());
+        QuestionExample questionExample = new QuestionExample();
+        questionExample.createCriteria().andCreatorEqualTo(user.getId());
+        Integer totalCount = (int)questionMapper.countByExample(questionExample);
         Integer totalPage;
 
         if((totalCount % size) != 0){
@@ -94,8 +106,7 @@ public class QuestionService {
             page = totalPage;
 
         Integer limitCount = size * (page - 1);
-        List<Question> questions = questionMapper.selectUserQuestion(limitCount, size, (Integer)user.getId());
-
+        List<Question> questions = questionMapper.selectByExampleWithRowbounds(questionExample, new RowBounds(limitCount, size));
         for(Question question : questions){
             QuestionDTO questionDTO = new QuestionDTO();
             BeanUtils.copyProperties(question, questionDTO);
@@ -111,8 +122,8 @@ public class QuestionService {
     public QuestionDTO getQuestionById(Integer id) {
 
         QuestionDTO questionDTO = new QuestionDTO();
-        Question question = questionMapper.selectQuestionById(id);
-        User user = userMapper.selectUserById(question.getCreator());
+        Question question = questionMapper.selectByPrimaryKey(id);
+        User user = userMapper.selectByPrimaryKey(question.getCreator());
 
         if(user == null){
             user = new User();
