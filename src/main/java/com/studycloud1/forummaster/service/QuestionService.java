@@ -3,6 +3,10 @@ package com.studycloud1.forummaster.service;
 
 import com.studycloud1.forummaster.dto.PaginationDTO;
 import com.studycloud1.forummaster.dto.QuestionDTO;
+import com.studycloud1.forummaster.exception.CustomizeErrorCode;
+import com.studycloud1.forummaster.exception.CustomizeException;
+import com.studycloud1.forummaster.exception.ICustomizeErrorCode;
+import com.studycloud1.forummaster.mapper.QuestionExtMapper;
 import com.studycloud1.forummaster.mapper.QuestionMapper;
 import com.studycloud1.forummaster.mapper.UserMapper;
 import com.studycloud1.forummaster.model.Question;
@@ -24,6 +28,8 @@ public class QuestionService {
     private QuestionMapper questionMapper;
     @Autowired
     private UserMapper userMapper;
+    @Autowired
+    private QuestionExtMapper questionExtMapper;
 
 
     public void createOrUpdate(Question question) {
@@ -44,7 +50,10 @@ public class QuestionService {
             updateQuestion.setTag(question.getTag());
             updateQuestion.setTitle(question.getTitle());
 
-            questionMapper.updateByExampleSelective(updateQuestion, questionExample);
+            int update = questionMapper.updateByExampleSelective(updateQuestion, questionExample);
+            if(update != 1){
+                throw new CustomizeException(CustomizeErrorCode.QUESTION_NOT_FOUND);
+            }
         }
     }
 
@@ -136,5 +145,11 @@ public class QuestionService {
 
         return questionDTO;
 
+    }
+
+    public void incView(Integer id){
+        Question question = questionMapper.selectByPrimaryKey(id);
+        question.setViewCount(1);
+        questionExtMapper.incView(question);
     }
 }

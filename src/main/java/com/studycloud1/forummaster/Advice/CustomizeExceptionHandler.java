@@ -1,5 +1,6 @@
 package com.studycloud1.forummaster.Advice;
 
+import com.studycloud1.forummaster.exception.CustomizeException;
 import org.springframework.http.HttpStatus;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -11,18 +12,12 @@ import javax.servlet.http.HttpServletRequest;
 @ControllerAdvice
 public class CustomizeExceptionHandler {
     @ExceptionHandler
-    public ModelAndView handle(HttpServletRequest request, Throwable ex, Model model){
-
-        HttpStatus status = getStatus(request);
-        model.addAttribute("message", "资源走丢了");
-        return new ModelAndView("error");
-    }
-
-    private HttpStatus getStatus(HttpServletRequest request){
-        Integer statusCode = (Integer) request.getAttribute("javax.servlet.error.status_code");
-        if(statusCode == null){
-            return HttpStatus.INTERNAL_SERVER_ERROR;
+    public ModelAndView handle(Throwable ex, Model model) {
+        if(ex instanceof CustomizeException){
+            model.addAttribute("message", ex.getMessage());
+        }else {
+            model.addAttribute("服务器暂时无法访问");
         }
-        return HttpStatus.valueOf(statusCode);
+        return new ModelAndView("error");
     }
 }
