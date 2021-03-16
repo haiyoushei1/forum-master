@@ -3,6 +3,7 @@ package com.studycloud1.forummaster.controller;
 
 import com.studycloud1.forummaster.dto.CommentDTO;
 import com.studycloud1.forummaster.dto.QuestionDTO;
+import com.studycloud1.forummaster.enums.CommentTypeEnum;
 import com.studycloud1.forummaster.mapper.QuestionMapper;
 import com.studycloud1.forummaster.model.Question;
 import com.studycloud1.forummaster.service.CommentService;
@@ -29,7 +30,7 @@ public class QuestionController {
                                 Model model){
         QuestionDTO questionDTO = questionService.getQuestionById(Id);
         questionService.incView(Id);
-        List<CommentDTO> commentDTOS = commentService.selectCommentById(Id);
+        List<CommentDTO> commentDTOS = commentService.selectCommentById(Id, CommentTypeEnum.QUESTION);
 
         model.addAttribute("question", questionDTO);
         model.addAttribute("comments", commentDTOS);

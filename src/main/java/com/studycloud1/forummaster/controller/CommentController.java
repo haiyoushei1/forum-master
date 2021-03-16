@@ -3,6 +3,7 @@ package com.studycloud1.forummaster.controller;
 import com.studycloud1.forummaster.dto.CommentCreateDTO;
 import com.studycloud1.forummaster.dto.CommentDTO;
 import com.studycloud1.forummaster.dto.ResultDTO;
+import com.studycloud1.forummaster.enums.CommentTypeEnum;
 import com.studycloud1.forummaster.exception.CustomizeErrorCode;
 import com.studycloud1.forummaster.model.Comment;
 import com.studycloud1.forummaster.model.User;
@@ -12,12 +13,12 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.ibatis.annotations.Update;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.ArrayList;
+import java.util.List;
 
 @Controller
 public class CommentController {
@@ -51,6 +52,14 @@ public class CommentController {
         commentService.insertComment(Comment);
 
         return ResultDTO.okOf();
+    }
 
+    @ResponseBody
+    @GetMapping("/comment/{id}")
+    public ResultDTO<List<CommentDTO>> comment(@PathVariable(name = "id") Integer id){
+
+        List<CommentDTO> commentDTOS = commentService.selectCommentById(id, CommentTypeEnum.COMMENT);
+
+        return ResultDTO.okOf(commentDTOS);
     }
 }
