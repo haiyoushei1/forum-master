@@ -1,8 +1,10 @@
 package com.studycloud1.forummaster.interceptor;
 
+import com.studycloud1.forummaster.mapper.NotificationMapper;
 import com.studycloud1.forummaster.mapper.UserMapper;
 import com.studycloud1.forummaster.model.User;
 import com.studycloud1.forummaster.model.UserExample;
+import com.studycloud1.forummaster.service.NotificationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
@@ -17,11 +19,15 @@ import java.util.List;
 @Service
 public class SessionInterceptor implements HandlerInterceptor {
 
+    @Autowired
+    NotificationService notificationService;
 
     @Autowired
     UserMapper userMapper;
 
+
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+
 
         Cookie cookies[] = request.getCookies();
         for(Cookie cookie : cookies){
@@ -32,6 +38,8 @@ public class SessionInterceptor implements HandlerInterceptor {
                 List<User> user = userMapper.selectByExample(userExample);
                 if(user.size() != 0){
                     request.getSession().setAttribute("user", user.get(0));
+                    Long unReadCount = notificationService.getUnReadCount(user.get(0));
+                    request.getSession().setAttribute("unreadCount", unReadCount);
                 }
                 break;
             }

@@ -62,7 +62,7 @@ public class QuestionService {
 
     public PaginationDTO list(Integer page, Integer size){
         List<QuestionDTO> questionDTOS = new ArrayList<>();
-        PaginationDTO paginationDTO = new PaginationDTO();
+        PaginationDTO<QuestionDTO> paginationDTO = new PaginationDTO();
         Integer totalCount = (int) questionMapper.countByExample(new QuestionExample());
         Integer totalPage;
 
@@ -101,9 +101,9 @@ public class QuestionService {
         return paginationDTO;
     }
 
-    public PaginationDTO list(Integer page, Integer size, User user){
+    public PaginationDTO<QuestionDTO> list(Integer page, Integer size, User user){
         List<QuestionDTO> questionDTOS = new ArrayList<>();
-        PaginationDTO paginationDTO = new PaginationDTO();
+        PaginationDTO<QuestionDTO> paginationDTO = new PaginationDTO();
         QuestionExample questionExample = new QuestionExample();
         questionExample.createCriteria().andCreatorEqualTo(user.getId());
         Integer totalCount = (int)questionMapper.countByExample(questionExample);

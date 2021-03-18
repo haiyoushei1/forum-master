@@ -8,7 +8,8 @@ public enum CustomizeErrorCode implements ICustomizeErrorCode{
     CONTENT_IS_EMPTY(1004, "回复内容不能为空"),
     SYS_ERROR(1005, "服务器正在维护"),
     TARGET_PARAM_EMPTY(1006, "评论或问题已被删除"),
-    TYPE_PARAM_NOT_FOUND(1007, "回复类型错误，请重试");
+    TYPE_PARAM_NOT_FOUND(1007, "回复类型错误，请重试"),
+    READ_FAIL(1008, "读错了，请重试");;
 
 
     private String message;

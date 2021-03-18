@@ -7,8 +7,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Data
-public class PaginationDTO {
-    private List<QuestionDTO> questionDTOS;
+public class PaginationDTO<T> {
+    private List<T> data;
     private boolean hasPrevious;
     private boolean hasFirstPage;
     private boolean showNext;
@@ -17,8 +17,8 @@ public class PaginationDTO {
     private List<Integer> pages = new ArrayList<>();
     private Integer totalPage;
 
-    public void setPaginationDTO(List<QuestionDTO> questionDTOS, Integer page, Integer totalPage){
-        this.questionDTOS = questionDTOS;
+    public void setPaginationDTO(List<T> data, Integer page, Integer totalPage){
+        this.data = data;
         this.page = page;
         this.totalPage = totalPage;
         pages.add(page);
@@ -31,8 +31,6 @@ public class PaginationDTO {
                 pages.add(page + i);
             }
         }
-
-
         if(page == 1){
             hasPrevious = false;
         }else{
@@ -44,7 +42,6 @@ public class PaginationDTO {
         }else{
             showNext = true;
         }
-
         if(pages.contains(1)){
             hasFirstPage = false;
         }else{
@@ -56,7 +53,5 @@ public class PaginationDTO {
         }else{
             showEndPage = true;
         }
-
-
     }
 }

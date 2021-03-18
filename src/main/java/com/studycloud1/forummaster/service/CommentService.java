@@ -2,16 +2,14 @@ package com.studycloud1.forummaster.service;
 
 import com.studycloud1.forummaster.dto.CommentDTO;
 import com.studycloud1.forummaster.enums.CommentTypeEnum;
+import com.studycloud1.forummaster.enums.NotificationStatusEnum;
+import com.studycloud1.forummaster.enums.NotificationTypeEnum;
 import com.studycloud1.forummaster.exception.CustomizeErrorCode;
 import com.studycloud1.forummaster.exception.CustomizeException;
-import com.studycloud1.forummaster.mapper.CommentMapper;
-import com.studycloud1.forummaster.mapper.QuestionExtMapper;
-import com.studycloud1.forummaster.mapper.QuestionMapper;
-import com.studycloud1.forummaster.mapper.UserMapper;
+import com.studycloud1.forummaster.mapper.*;
 import com.studycloud1.forummaster.model.*;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,10 +32,13 @@ public class CommentService {
     QuestionExtMapper questionExtMapper;
 
     @Autowired
+    NotificationMapper notificationMapper;
+
+    @Autowired
     UserMapper userMapper;
 
-    //@Transactional
-    public void insertComment(Comment comment) {
+    @Transactional
+    public void insertComment(Comment comment, User commentor) {
 
         if(comment.getParentId() == null || comment.getParentId() == 0){
             throw new CustomizeException(CustomizeErrorCode.TARGET_PARAM_EMPTY);
@@ -60,6 +61,7 @@ public class CommentService {
             }
 
             commentMapper.insert(comment);
+            createNotify(comment, dbComment.getCommentor(), NotificationTypeEnum.RELAY_COMMENT, commentor.getName(), question);
         //回复问题
         }else{
             Question question = questionMapper.selectByPrimaryKey(comment.getParentId());
@@ -67,6 +69,7 @@ public class CommentService {
                 throw new CustomizeException(CustomizeErrorCode.TARGET_PARAM_EMPTY);
             }
             commentMapper.insert(comment);
+            createNotify(comment, question.getCreator(), NotificationTypeEnum.RELAY_QUESTION, commentor.getName(), question);
             question.setCommentCount(1);
             questionExtMapper.incComment(question);
         }
@@ -97,5 +100,22 @@ public class CommentService {
             return commentDTO;
         }).collect(Collectors.toList());
         return commentDTOS;
+    }
+
+    private void createNotify(Comment comment, Integer receiverId, NotificationTypeEnum notificationTypeEnum, String name, Question question){
+        if(comment.getCommentor().equals(receiverId)){
+            return ;
+        }
+        Notification notification = new Notification();
+        notification.setNotifier(comment.getCommentor());
+        notification.setReceiver(receiverId);
+        notification.setGmtCreate(System.currentTimeMillis());
+        notification.setOuterid(question.getId());
+        notification.setType(notificationTypeEnum.getCode());
+        notification.setNotifierName(name);
+        notification.setNotifierTitle(question.getTitle());
+        notification.setStatus(NotificationStatusEnum.UNREAD.getStatus());
+
+        notificationMapper.insert(notification);
     }
 }
